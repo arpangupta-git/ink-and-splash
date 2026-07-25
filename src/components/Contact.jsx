@@ -52,7 +52,6 @@ export default function Contact() {
                 </div>
                 <h3 className="contact__card-title">Email</h3>
                 <p className="contact__card-value">prkrishna317@gmail.com</p>
-                <p className="contact__card-value" style={{fontSize: '0.8rem', opacity: 0.7}}>lowkeyinsilence@gmail.com</p>
                 <span className="contact__card-cta">Send Email →</span>
               </a>
             </ScrollRevealItem>

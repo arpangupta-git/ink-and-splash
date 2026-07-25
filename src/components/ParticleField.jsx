@@ -17,9 +17,9 @@ function Particles({ count = 1500 }) {
     ];
 
     for (let i = 0; i < count; i++) {
-      pos[i * 3] = (Math.random() - 0.5) * 80;
-      pos[i * 3 + 1] = (Math.random() - 0.5) * 80;
-      pos[i * 3 + 2] = (Math.random() - 0.5) * 40 - 10;
+      pos[i * 3] = (Math.random() - 0.5) * 150;
+      pos[i * 3 + 1] = (Math.random() - 0.5) * 150;
+      pos[i * 3 + 2] = (Math.random() - 0.5) * 100 - 20;
 
       const c = palette[Math.floor(Math.random() * palette.length)];
       col[i * 3] = c.r;
@@ -45,7 +45,7 @@ function Particles({ count = 1500 }) {
       </bufferGeometry>
       <pointsMaterial
         vertexColors
-        size={0.4}
+        size={0.3}
         sizeAttenuation={true}
         transparent
         opacity={0.8}

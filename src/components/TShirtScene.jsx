@@ -81,7 +81,7 @@ export default function TShirtScene() {
         <OrbitControls enableZoom={false} autoRotate autoRotateSpeed={2} minPolarAngle={Math.PI / 3} maxPolarAngle={Math.PI / 1.5} />
       </Canvas>
       
-      <div style={{ position: 'absolute', bottom: '20px', left: '50%', transform: 'translateX(-50%)', zIndex: 10 }}>
+      <div style={{ position: 'absolute', bottom: '20px', left: '46%', transform: 'translateX(-50%)', zIndex: 10 }}>
         <button 
           onClick={() => navigate('/designer')}
           className="btn-primary hover-target"

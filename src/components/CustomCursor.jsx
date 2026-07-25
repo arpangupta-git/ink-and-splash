@@ -6,20 +6,21 @@ export default function CustomCursor() {
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const [isHovering, setIsHovering] = useState(false);
 
-  const cursorX = useSpring(0, { stiffness: 400, damping: 28 });
-  const cursorY = useSpring(0, { stiffness: 400, damping: 28 });
+  // Faster tracking for the ambient glow
+  const glowX = useSpring(0, { stiffness: 800, damping: 40 });
+  const glowY = useSpring(0, { stiffness: 800, damping: 40 });
 
   useEffect(() => {
     const updateMousePosition = (e) => {
       setMousePosition({ x: e.clientX, y: e.clientY });
-      cursorX.set(e.clientX - 16); // Center of the 32px ring
-      cursorY.set(e.clientY - 16);
+      glowX.set(e.clientX - 125); // Center of 250px glow orb
+      glowY.set(e.clientY - 125);
     };
 
     window.addEventListener('mousemove', updateMousePosition);
 
     const handleMouseOver = (e) => {
-      if (e.target.closest('.hover-target, button, a, input, select, textarea')) {
+      if (e.target.closest('.hover-target, button, a, label, input, select')) {
         setIsHovering(true);
       } else {
         setIsHovering(false);
@@ -31,7 +32,7 @@ export default function CustomCursor() {
       window.removeEventListener('mousemove', updateMousePosition);
       window.removeEventListener('mouseover', handleMouseOver);
     };
-  }, [cursorX, cursorY]);
+  }, [glowX, glowY]);
 
   // Don't render cursor on mobile devices
   if (typeof window !== 'undefined' && window.innerWidth <= 768) {
@@ -41,21 +42,17 @@ export default function CustomCursor() {
   return (
     <>
       <motion.div
-        className="custom-cursor-ring"
+        className="cursor-glow"
         style={{
-          x: cursorX,
-          y: cursorY,
-          scale: isHovering ? 1.5 : 1,
-          backgroundColor: isHovering ? 'rgba(124, 58, 237, 0.1)' : 'transparent',
-          borderColor: isHovering ? 'rgba(124, 58, 237, 0.2)' : 'rgba(124, 58, 237, 0.8)',
+          x: glowX,
+          y: glowY,
         }}
       />
       <div
-        className="custom-cursor-dot"
+        className={`cursor-dot ${isHovering ? 'hovering' : ''}`}
         style={{
-          left: mousePosition.x - 4, // center of 8px dot
-          top: mousePosition.y - 4,
-          transform: isHovering ? 'scale(0.5)' : 'scale(1)',
+          left: mousePosition.x - (isHovering ? 25 : 5), 
+          top: mousePosition.y - (isHovering ? 25 : 5),
         }}
       />
     </>

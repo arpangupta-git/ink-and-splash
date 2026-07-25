@@ -1,0 +1,125 @@
+.contact {
+  position: relative;
+  z-index: 1;
+  padding: var(--space-section) 0;
+}
+
+.contact__header {
+  text-align: center;
+  margin-bottom: var(--space-3xl);
+}
+
+.contact__header .section-subtitle {
+  margin: 0 auto;
+}
+
+.contact__grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-lg);
+  margin-bottom: var(--space-3xl);
+}
+
+.contact__card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: var(--space-2xl);
+  gap: var(--space-md);
+  transition: all var(--transition-base);
+  cursor: pointer;
+}
+
+.contact__card:hover {
+  transform: translateY(-6px);
+  border-color: rgba(124, 58, 237, 0.3);
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.contact__card--whatsapp:hover {
+  border-color: rgba(37, 211, 102, 0.4);
+}
+
+.contact__card-icon {
+  width: 64px;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--border-radius-lg);
+  font-size: 1.6rem;
+}
+
+.contact__card-icon--phone {
+  background: rgba(124, 58, 237, 0.15);
+  color: var(--color-primary-light);
+}
+
+.contact__card-icon--whatsapp {
+  background: rgba(37, 211, 102, 0.15);
+  color: #25D366;
+}
+
+.contact__card-icon--email {
+  background: rgba(236, 72, 153, 0.15);
+  color: var(--color-secondary);
+}
+
+.contact__card-title {
+  font-family: var(--font-heading);
+  font-size: var(--font-size-lg);
+  font-weight: 700;
+  color: #f1f5f9;
+}
+
+.contact__card-value {
+  font-size: var(--font-size-sm);
+  color: #94a3b8;
+  line-height: 1.5;
+}
+
+.contact__card-cta {
+  font-family: var(--font-heading);
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  color: #25D366;
+  margin-top: var(--space-sm);
+}
+
+/* CTA Banner */
+.contact__cta-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-2xl) var(--space-3xl);
+  gap: var(--space-xl);
+  background: linear-gradient(135deg, rgba(124, 58, 237, 0.1), rgba(236, 72, 153, 0.08));
+  border-color: rgba(124, 58, 237, 0.2);
+}
+
+.contact__cta-content h3 {
+  font-family: var(--font-heading);
+  font-size: var(--font-size-2xl);
+  font-weight: 800;
+  color: #f1f5f9;
+  margin-bottom: var(--space-xs);
+}
+
+.contact__cta-content p {
+  color: #94a3b8;
+  font-size: var(--font-size-sm);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .contact__grid {
+    grid-template-columns: 1fr;
+  }
+
+  .contact__cta-banner {
+    flex-direction: column;
+    text-align: center;
+    padding: var(--space-xl);
+  }
+}

@@ -78,7 +78,7 @@ export default function TShirtScene() {
         </Suspense>
 
         <ContactShadows position={[0, -0.8, 0]} opacity={0.4} scale={3} blur={2.5} far={4} color="#dc2626" />
-        <OrbitControls enableZoom={false} autoRotate autoRotateSpeed={2} minPolarAngle={Math.PI / 3} maxPolarAngle={Math.PI / 1.5} />
+        <OrbitControls enableZoom={false} enablePan={false} autoRotate autoRotateSpeed={2} minPolarAngle={Math.PI / 3} maxPolarAngle={Math.PI / 1.5} />
       </Canvas>
       
       <div style={{ position: 'absolute', bottom: '20px', left: '46%', transform: 'translateX(-50%)', zIndex: 10 }}>

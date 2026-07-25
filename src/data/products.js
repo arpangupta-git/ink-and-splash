@@ -91,7 +91,7 @@ export const contactInfo = {
   phones: ["+91 8400519209"],
   // Order-specific routing
   orderWhatsapp: "919555081161",
-  orderEmail: "lowkeyinsilence@gmail.com",
+  orderEmail: "prkrishna317@gmail.com",
   // General contact WhatsApp (for chat button)
   whatsapp: "918400519209",
 };

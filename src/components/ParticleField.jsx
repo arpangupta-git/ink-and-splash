@@ -2,7 +2,7 @@ import { useRef, useMemo } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 
-function Particles({ count = 800 }) {
+function Particles({ count = 1500 }) {
   const meshRef = useRef();
 
   const [positions, colors] = useMemo(() => {
@@ -17,9 +17,9 @@ function Particles({ count = 800 }) {
     ];
 
     for (let i = 0; i < count; i++) {
-      pos[i * 3] = (Math.random() - 0.5) * 40;
-      pos[i * 3 + 1] = (Math.random() - 0.5) * 40;
-      pos[i * 3 + 2] = (Math.random() - 0.5) * 20 - 5;
+      pos[i * 3] = (Math.random() - 0.5) * 80;
+      pos[i * 3 + 1] = (Math.random() - 0.5) * 80;
+      pos[i * 3 + 2] = (Math.random() - 0.5) * 40 - 10;
 
       const c = palette[Math.floor(Math.random() * palette.length)];
       col[i * 3] = c.r;
@@ -45,11 +45,10 @@ function Particles({ count = 800 }) {
       </bufferGeometry>
       <pointsMaterial
         vertexColors
-        size={0.1}
+        size={0.4}
         sizeAttenuation={true}
         transparent
-        opacity={0.6}
-        blending={THREE.AdditiveBlending}
+        opacity={0.8}
         depthWrite={false}
       />
     </points>

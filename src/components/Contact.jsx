@@ -46,12 +46,13 @@ export default function Contact() {
             </ScrollRevealItem>
 
             <ScrollRevealItem>
-              <a href="mailto:lowkeyinsilence@gmail.com" className="contact__card glass">
+              <a href="mailto:prkrishna317@gmail.com" className="contact__card glass">
                 <div className="contact__card-icon contact__card-icon--email">
                   <HiEnvelope />
                 </div>
                 <h3 className="contact__card-title">Email</h3>
-                <p className="contact__card-value">lowkeyinsilence@gmail.com</p>
+                <p className="contact__card-value">prkrishna317@gmail.com</p>
+                <p className="contact__card-value" style={{fontSize: '0.8rem', opacity: 0.7}}>lowkeyinsilence@gmail.com</p>
                 <span className="contact__card-cta">Send Email →</span>
               </a>
             </ScrollRevealItem>

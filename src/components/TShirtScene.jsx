@@ -1,131 +1,95 @@
-import { useRef, useMemo } from 'react';
-import { Canvas, useFrame } from '@react-three/fiber';
-import { Float, ContactShadows } from '@react-three/drei';
+import { useMemo, Suspense } from 'react';
+import { Canvas } from '@react-three/fiber';
+import { Float, ContactShadows, OrbitControls, useGLTF, Decal, useTexture } from '@react-three/drei';
 import * as THREE from 'three';
+import { useNavigate } from 'react-router-dom';
 
-import { useGLTF } from '@react-three/drei';
+function HeroModel() {
+  const { nodes, materials } = useGLTF('/tshirt.glb');
+  const spiderSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="#0a0a0a">
+    <path d="M50 30 C 55 30 60 35 60 45 C 60 55 55 60 50 60 C 45 60 40 55 40 45 C 40 35 45 30 50 30 Z" />
+    <path d="M48 45 L 20 20 M 48 48 L 15 40 M 48 51 L 20 70 M 48 54 L 35 85" stroke="#0a0a0a" stroke-width="4" fill="none" stroke-linecap="round" />
+    <path d="M52 45 L 80 20 M 52 48 L 85 40 M 52 51 L 80 70 M 52 54 L 65 85" stroke="#0a0a0a" stroke-width="4" fill="none" stroke-linecap="round" />
+  </svg>`;
+  const spiderLogoUrl = "data:image/svg+xml;base64," + btoa(spiderSvg);
+  const spiderLogo = useTexture(spiderLogoUrl);
 
-function ExternalModel() {
-  const groupRef = useRef();
+  const meshNode = useMemo(() => Object.values(nodes).find(n => n.type === 'Mesh' || n.isMesh), [nodes]);
+  const originalMaterial = useMemo(() => Object.values(materials)[0], [materials]);
   
-  // The user will place their 3D file at public/tshirt.glb
-  // We use useGLTF to load it. If it's missing, it will suspend/fail gracefully if handled,
-  // but we assume the user will add it.
-  try {
-    const { scene } = useGLTF('/tshirt.glb');
-    
-    useFrame((state) => {
-      if (groupRef.current) {
-        // Revolving animation
-        groupRef.current.rotation.y = state.clock.elapsedTime * 0.25;
-        // Subtle floating up and down
-        groupRef.current.position.y = Math.sin(state.clock.elapsedTime * 0.4) * 0.08;
-      }
+  const material = useMemo(() => {
+    if (!originalMaterial) return new THREE.MeshPhysicalMaterial();
+    const mat = new THREE.MeshPhysicalMaterial({
+      color: new THREE.Color('#dc2626'), // Spiderman Red
+      map: originalMaterial.map,
+      normalMap: originalMaterial.normalMap,
+      roughness: 0.3,
+      metalness: 0.1,
+      clearcoat: 0.3,
+      clearcoatRoughness: 0.1,
     });
+    return mat;
+  }, [originalMaterial]);
 
-    return (
-      <Float speed={1.2} rotationIntensity={0.15} floatIntensity={0.4}>
-        <group ref={groupRef} scale={1.2} position={[0, -0.1, 0]}>
-          <primitive object={scene} />
-        </group>
-      </Float>
-    );
-  } catch (err) {
-    // Fallback if the model isn't uploaded yet
-    return (
-      <Float speed={1.2} rotationIntensity={0.15} floatIntensity={0.4}>
-        <mesh position={[0, 0, 0]}>
-          <boxGeometry args={[1, 1, 1]} />
-          <meshStandardMaterial color="#7c3aed" wireframe />
-        </mesh>
-      </Float>
-    );
-  }
-}
-
-// Preload the model so it doesn't pop in (optional, but good practice)
-useGLTF.preload('/tshirt.glb');
-
-function FloatingOrbs() {
-  const orbs = useMemo(() =>
-    Array.from({ length: 12 }, (_, i) => ({
-      position: [
-        (Math.random() - 0.5) * 7,
-        (Math.random() - 0.5) * 5,
-        (Math.random() - 0.5) * 5 - 2,
-      ],
-      scale: 0.04 + Math.random() * 0.1,
-      speed: 0.2 + Math.random() * 0.6,
-      color: ['#7c3aed', '#ec4899', '#06b6d4', '#a78bfa', '#f472b6'][i % 5],
-    })), []);
-
-  return orbs.map((orb, i) => (
-    <Float key={i} speed={orb.speed} rotationIntensity={0} floatIntensity={2}>
-      <mesh position={orb.position}>
-        <sphereGeometry args={[orb.scale, 24, 24]} />
-        <meshStandardMaterial
-          color={orb.color}
-          emissive={orb.color}
-          emissiveIntensity={2}
-          transparent
-          opacity={0.5}
-          metalness={1}
-          roughness={0}
-        />
-      </mesh>
-    </Float>
-  ));
-}
-
-function GlowRing() {
-  const ref = useRef();
-  useFrame((state) => {
-    if (ref.current) {
-      ref.current.rotation.x = Math.PI / 2;
-      ref.current.rotation.z = state.clock.elapsedTime * 0.15;
-    }
-  });
+  if (!meshNode) return null;
 
   return (
-    <mesh ref={ref} position={[0, -0.1, 0]}>
-      <torusGeometry args={[2.8, 0.015, 16, 100]} />
-      <meshStandardMaterial
-        color="#7c3aed"
-        emissive="#7c3aed"
-        emissiveIntensity={3}
-        transparent
-        opacity={0.3}
-        metalness={1}
-        roughness={0}
-      />
-    </mesh>
+    <group position={[0, -0.1, 0]} scale={[1.4, 1.4, 1.4]}>
+      <mesh
+        castShadow
+        receiveShadow
+        geometry={meshNode.geometry}
+        material={material}
+        dispose={null}
+      >
+        {/* Front Spider Logo */}
+        <Decal position={[0, 0.05, 0.15]} rotation={[0, 0, 0]} scale={0.12} map={spiderLogo} />
+        {/* Back Spider Logo */}
+        <Decal position={[0, 0.05, -0.15]} rotation={[0, Math.PI, 0]} scale={0.12} map={spiderLogo} />
+      </mesh>
+    </group>
   );
 }
 
+useGLTF.preload('/tshirt.glb');
+
 export default function TShirtScene() {
+  const navigate = useNavigate();
+
   return (
-    <Canvas
-      camera={{ position: [0, 0, 5.5], fov: 42 }}
-      style={{ width: '100%', height: '100%' }}
-      dpr={[1, 2]}
-      gl={{ antialias: true, alpha: true }}
-      shadows
-    >
-      <color attach="background" args={['transparent']} />
+    <div style={{ position: 'relative', width: '100%', height: '100%' }}>
+      <Canvas
+        className="tshirt-canvas hover-target"
+        camera={{ position: [0, 0, 1.4], fov: 45 }}
+        dpr={[1, 2]}
+        gl={{ antialias: true, alpha: true }}
+        shadows
+      >
+        <ambientLight intensity={0.7} />
+        <directionalLight position={[5, 5, 5]} intensity={2.5} color="#ffffff" castShadow shadow-mapSize={[1024, 1024]} />
+        <directionalLight position={[-4, 3, 3]} intensity={1.5} color="#3b82f6" />
+        <directionalLight position={[0, 2, -5]} intensity={2} color="#ffffff" />
+        <spotLight position={[-4, 4, 6]} intensity={30} color="#dc2626" angle={0.4} penumbra={0.8} />
+        
+        <Suspense fallback={null}>
+          <Float speed={2} rotationIntensity={0.5} floatIntensity={0.5}>
+            <HeroModel />
+          </Float>
+        </Suspense>
+
+        <ContactShadows position={[0, -0.8, 0]} opacity={0.4} scale={3} blur={2.5} far={4} color="#dc2626" />
+        <OrbitControls enableZoom={false} autoRotate autoRotateSpeed={2} minPolarAngle={Math.PI / 3} maxPolarAngle={Math.PI / 1.5} />
+      </Canvas>
       
-      <directionalLight position={[5, 5, 5]} intensity={2.5} color="#ffffff" castShadow shadow-mapSize={[1024, 1024]} />
-      <directionalLight position={[-4, 3, 3]} intensity={1.5} color="#93c5fd" />
-      <spotLight position={[-4, 4, 6]} intensity={50} color="#7c3aed" angle={0.4} penumbra={0.8} distance={15} castShadow />
-      <spotLight position={[4, -2, 6]} intensity={40} color="#ec4899" angle={0.5} penumbra={0.7} distance={12} />
-      <spotLight position={[0, 5, 4]} intensity={30} color="#06b6d4" angle={0.6} penumbra={0.9} distance={10} />
-      <pointLight position={[0, 0, -4]} intensity={5} color="#a78bfa" distance={12} />
-      <ambientLight intensity={0.5} />
-
-      <ExternalModel />
-      <FloatingOrbs />
-      <GlowRing />
-
-      <ContactShadows position={[0, -2.2, 0]} opacity={0.4} scale={8} blur={2.5} far={4} color="#7c3aed" />
-    </Canvas>
+      <div style={{ position: 'absolute', bottom: '20px', left: '50%', transform: 'translateX(-50%)', zIndex: 10 }}>
+        <button 
+          onClick={() => navigate('/designer')}
+          className="btn-primary hover-target"
+          style={{ padding: '12px 24px', whiteSpace: 'nowrap', boxShadow: '0 10px 30px rgba(124, 58, 237, 0.4)' }}
+        >
+          Open 3D Designer
+        </button>
+      </div>
+    </div>
   );
 }

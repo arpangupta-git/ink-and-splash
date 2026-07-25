@@ -1,0 +1,40 @@
+body {
+  cursor: none;
+}
+
+.custom-cursor-ring {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 32px;
+  height: 32px;
+  border: 2px solid rgba(124, 58, 237, 0.8);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 9999;
+  transition: background-color 0.3s, border-color 0.3s;
+}
+
+.custom-cursor-dot {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 8px;
+  height: 8px;
+  background-color: var(--color-primary);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 10000;
+  transition: transform 0.2s;
+}
+
+/* Hide cursor on mobile devices */
+@media (max-width: 768px) {
+  body {
+    cursor: auto;
+  }
+  .custom-cursor-ring,
+  .custom-cursor-dot {
+    display: none;
+  }
+}

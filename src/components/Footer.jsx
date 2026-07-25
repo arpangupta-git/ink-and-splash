@@ -21,9 +21,9 @@ export default function Footer() {
           </div>
 
           <div className="footer__links">
-            <a href="#services">Services</a>
-            <a href="#order">Place an Order</a>
-            <a href="#contact">Contact</a>
+            <a href="#!" onClick={(e) => { e.preventDefault(); document.getElementById('services')?.scrollIntoView({ behavior: 'smooth' }); }}>Services</a>
+            <a href="#!" onClick={(e) => { e.preventDefault(); document.getElementById('order')?.scrollIntoView({ behavior: 'smooth' }); }}>Place an Order</a>
+            <a href="#!" onClick={(e) => { e.preventDefault(); document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' }); }}>Contact</a>
           </div>
 
           <div className="footer__bottom">

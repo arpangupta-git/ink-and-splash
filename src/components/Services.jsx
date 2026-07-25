@@ -109,7 +109,7 @@ function TShirtShowcase() {
               </div>
             </div>
           </div>
-          <a href="#order" className="btn-primary" style={{ marginTop: '1rem', width: 'fit-content' }}>
+          <a href="#!" onClick={(e) => { e.preventDefault(); document.getElementById('order')?.scrollIntoView({ behavior: 'smooth' }); }} className="btn-primary" style={{ marginTop: '1rem', width: 'fit-content' }}>
             Order Now <HiArrowRight />
           </a>
         </div>
@@ -127,7 +127,7 @@ function TShirtShowcase() {
           {printingMethods.map((method, i) => (
             <motion.a
               key={method.name}
-              href="#order"
+              href="#!" onClick={(e) => { e.preventDefault(); document.getElementById('order')?.scrollIntoView({ behavior: 'smooth' }); }}
               className="method-card glass"
               initial={{ opacity: 0, y: 30, scale: 0.95 }}
               whileInView={{ opacity: 1, y: 0, scale: 1 }}
@@ -187,7 +187,7 @@ function GenericShowcase({ category }) {
       <div className="generic-showcase__header glass">
         <h3 className="generic-showcase__title">{category.tagline}</h3>
         <p className="generic-showcase__desc">{category.description}</p>
-        <a href="#order" className="btn-primary" style={{ marginTop: '1.5rem', width: 'fit-content' }}>
+        <a href="#!" onClick={(e) => { e.preventDefault(); document.getElementById('order')?.scrollIntoView({ behavior: 'smooth' }); }} className="btn-primary" style={{ marginTop: '1.5rem', width: 'fit-content' }}>
           Get a Quote <HiArrowRight />
         </a>
       </div>
@@ -198,7 +198,7 @@ function GenericShowcase({ category }) {
           return (
             <motion.a
               key={name}
-              href="#order"
+              href="#!" onClick={(e) => { e.preventDefault(); document.getElementById('order')?.scrollIntoView({ behavior: 'smooth' }); }}
               className="generic-item glass"
               initial={{ opacity: 0, y: 30, scale: 0.95 }}
               whileInView={{ opacity: 1, y: 0, scale: 1 }}

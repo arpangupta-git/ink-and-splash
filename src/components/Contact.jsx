@@ -64,7 +64,7 @@ export default function Contact() {
               <h3>Ready to make an <span className="gradient-text">impact</span>?</h3>
               <p>Get your custom order started in under 2 minutes.</p>
             </div>
-            <a href="#order" className="btn-primary">
+            <a href="#!" onClick={(e) => { e.preventDefault(); document.getElementById('order')?.scrollIntoView({ behavior: 'smooth' }); }} className="btn-primary">
               Place Your Order
             </a>
           </div>

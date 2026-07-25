@@ -5,9 +5,9 @@ import { FaPrint } from 'react-icons/fa';
 import './Navbar.css';
 
 const navLinks = [
-  { label: 'Services', href: '#services' },
-  { label: 'Order', href: '#order' },
-  { label: 'Contact', href: '#contact' },
+  { label: 'Services', id: 'services' },
+  { label: 'Order', id: 'order' },
+  { label: 'Contact', id: 'contact' },
 ];
 
 export default function Navbar() {
@@ -29,6 +29,12 @@ export default function Navbar() {
     return () => { document.body.style.overflow = ''; };
   }, [mobileOpen]);
 
+  const scrollToSection = (e, id) => {
+    e.preventDefault();
+    document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
+    if (mobileOpen) setMobileOpen(false);
+  };
+
   return (
     <motion.nav
       className={`navbar ${scrolled ? 'navbar--scrolled' : ''}`}
@@ -37,7 +43,7 @@ export default function Navbar() {
       transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
     >
       <div className="navbar__inner container">
-        <a href="#" className="navbar__logo">
+        <a href="#!" onClick={(e) => { e.preventDefault(); window.scrollTo({ top: 0, behavior: 'smooth' }); }} className="navbar__logo">
           <FaPrint className="navbar__logo-icon" />
           <span className="navbar__logo-text">
             INK <span className="navbar__logo-amp">&</span> IMPACT
@@ -46,11 +52,11 @@ export default function Navbar() {
 
         <div className="navbar__links">
           {navLinks.map((link) => (
-            <a key={link.href} href={link.href} className="navbar__link">
+            <a key={link.id} href="#!" onClick={(e) => scrollToSection(e, link.id)} className="navbar__link">
               {link.label}
             </a>
           ))}
-          <a href="#order" className="btn-primary navbar__cta">
+          <a href="#!" onClick={(e) => scrollToSection(e, 'order')} className="btn-primary navbar__cta">
             Get a Quote
           </a>
         </div>
@@ -92,10 +98,10 @@ export default function Navbar() {
               <div className="navbar__mobile-links">
                 {navLinks.map((link, i) => (
                   <motion.a
-                    key={link.href}
-                    href={link.href}
+                    key={link.id}
+                    href="#!"
                     className="navbar__mobile-link"
-                    onClick={() => setMobileOpen(false)}
+                    onClick={(e) => scrollToSection(e, link.id)}
                     initial={{ opacity: 0, x: 30 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: 0.1 + i * 0.08 }}
@@ -104,9 +110,9 @@ export default function Navbar() {
                   </motion.a>
                 ))}
                 <motion.a
-                  href="#order"
+                  href="#!"
                   className="btn-primary navbar__mobile-cta"
-                  onClick={() => setMobileOpen(false)}
+                  onClick={(e) => scrollToSection(e, 'order')}
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.35 }}

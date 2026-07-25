@@ -77,11 +77,11 @@ export default function Hero() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 1.4, duration: 0.6 }}
           >
-            <a href="#services" className="btn-primary hero__btn">
+            <a href="#!" onClick={(e) => { e.preventDefault(); document.getElementById('services')?.scrollIntoView({ behavior: 'smooth' }); }} className="btn-primary hero__btn">
               Explore Services
               <HiArrowRight />
             </a>
-            <a href="#order" className="btn-secondary hero__btn">
+            <a href="#!" onClick={(e) => { e.preventDefault(); document.getElementById('order')?.scrollIntoView({ behavior: 'smooth' }); }} className="btn-secondary hero__btn">
               Place an Order
             </a>
           </motion.div>

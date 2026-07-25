@@ -4,6 +4,7 @@ import { Float, ContactShadows, OrbitControls, useGLTF, Decal } from '@react-thr
 import { HiArrowLeft, HiPlus, HiTrash, HiMagnifyingGlassPlus, HiMagnifyingGlassMinus, HiArrowsRightLeft, HiEye, HiPencilSquare } from 'react-icons/hi2';
 import { useNavigate } from 'react-router-dom';
 import * as THREE from 'three';
+import './Designer.css';
 
 // --------------------------------------------------------------------------------------------------
 // Subcomponent for each Decal Layer
@@ -190,12 +191,12 @@ export default function Designer() {
   const activeDecal = decals.find(d => d.id === activeDecalId);
 
   return (
-    <div style={{ position: 'relative', width: '100vw', height: '100vh', backgroundColor: '#050505', overflow: 'hidden' }}>
+    <div className="designer-container">
       
       {/* Top Navigation Bar */}
-      <div style={{ position: 'absolute', top: 0, left: 0, right: 0, padding: '20px 30px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', zIndex: 10 }}>
+      <div className="designer-topbar">
         <button onClick={() => navigate('/')} className="btn-secondary hover-target" style={{ padding: '8px 16px', display: 'flex', alignItems: 'center', gap: '8px', borderRadius: '50px' }}>
-          <HiArrowLeft /> Back to Home
+          <HiArrowLeft /> <span>Back to Home</span>
         </button>
         
         {/* Mode Switcher */}
@@ -219,8 +220,8 @@ export default function Designer() {
 
       {/* Layers Sidebar (Left) */}
       {designerState.mode === 'edit' && (
-        <div style={{ position: 'absolute', top: '100px', left: '30px', background: 'rgba(15,15,15,0.7)', backdropFilter: 'blur(20px)', padding: '20px', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.1)', zIndex: 10, width: '220px', display: 'flex', flexDirection: 'column', gap: '15px' }}>
-          <h3 style={{ color: 'white', fontSize: '1rem', margin: 0, fontFamily: 'var(--font-heading)' }}>Design Layers</h3>
+        <div className="designer-sidebar">
+          <h3>Design Layers</h3>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
             {decals.map((decal, index) => (
               <div 
@@ -251,7 +252,7 @@ export default function Designer() {
 
       {/* Camera Controls (Right) */}
       {designerState.mode === 'edit' && (
-        <div style={{ position: 'absolute', top: '100px', right: '30px', display: 'flex', flexDirection: 'column', gap: '15px', zIndex: 10 }}>
+        <div className="designer-controls">
            
            {/* Zoom Controls without the buggy pill container */}
            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
@@ -317,13 +318,7 @@ export default function Designer() {
       </Canvas>
 
       {/* Horizontal Dock UI */}
-      <div className="customizer-ui" style={{
-        position: 'absolute', bottom: '30px', left: '50%', transform: 'translateX(-50%)',
-        background: 'rgba(15,15,15,0.7)', backdropFilter: 'blur(20px)', padding: '15px 30px',
-        borderRadius: '100px', display: 'flex', flexDirection: 'row', alignItems: 'center', gap: '30px',
-        border: '1px solid rgba(255,255,255,0.1)', zIndex: 10, width: 'max-content', maxWidth: '95vw',
-        boxShadow: '0 20px 50px rgba(0,0,0,0.5)', flexWrap: 'wrap', justifyContent: 'center'
-      }}>
+      <div className="customizer-ui designer-dock">
         
         {/* Colors */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>

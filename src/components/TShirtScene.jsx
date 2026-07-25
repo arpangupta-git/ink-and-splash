@@ -72,9 +72,7 @@ export default function TShirtScene() {
         <spotLight position={[-4, 4, 6]} intensity={30} color="#dc2626" angle={0.4} penumbra={0.8} />
         
         <Suspense fallback={null}>
-          <Float speed={2} rotationIntensity={0.5} floatIntensity={0.5}>
-            <HeroModel />
-          </Float>
+          <HeroModel />
         </Suspense>
 
         <ContactShadows position={[0, -0.8, 0]} opacity={0.4} scale={3} blur={2.5} far={4} color="#dc2626" />

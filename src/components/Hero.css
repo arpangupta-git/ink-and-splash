@@ -1,10 +1,10 @@
 .hero {
   position: relative;
-  min-height: 100vh;
+  min-height: 100svh; /* use small viewport height to prevent resize on mobile scroll */
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  padding-top: var(--navbar-height);
+  /* Removed justify-content: center to prevent elements moving when address bar hides */
+  padding-top: calc(var(--navbar-height) + 60px); 
   overflow: hidden;
 }
 

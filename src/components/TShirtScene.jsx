@@ -5,7 +5,7 @@ import * as THREE from 'three';
 import { useNavigate } from 'react-router-dom';
 
 function HeroModel() {
-  const { nodes, materials } = useGLTF('/tshirt.glb');
+  const { nodes, materials } = useGLTF('./tshirt.glb');
   const spiderSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="#0a0a0a">
     <path d="M50 30 C 55 30 60 35 60 45 C 60 55 55 60 50 60 C 45 60 40 55 40 45 C 40 35 45 30 50 30 Z" />
     <path d="M48 45 L 20 20 M 48 48 L 15 40 M 48 51 L 20 70 M 48 54 L 35 85" stroke="#0a0a0a" stroke-width="4" fill="none" stroke-linecap="round" />
@@ -51,7 +51,7 @@ function HeroModel() {
   );
 }
 
-useGLTF.preload('/tshirt.glb');
+useGLTF.preload('./tshirt.glb');
 
 export default function TShirtScene() {
   const navigate = useNavigate();

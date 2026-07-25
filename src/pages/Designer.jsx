@@ -41,7 +41,7 @@ function DecalLayer({ decal, isActive }) {
 // Main T-Shirt Model (Handles Dragging)
 // --------------------------------------------------------------------------------------------------
 function ExternalModel({ color, decals, activeDecalId, setDecals, designerState }) {
-  const { nodes, materials } = useGLTF('/tshirt.glb');
+  const { nodes, materials } = useGLTF('./tshirt.glb');
   
   const meshNode = useMemo(() => Object.values(nodes).find(n => n.type === 'Mesh' || n.isMesh), [nodes]);
   const originalMaterial = useMemo(() => Object.values(materials)[0], [materials]);
@@ -130,7 +130,7 @@ function ExternalModel({ color, decals, activeDecalId, setDecals, designerState 
   );
 }
 
-useGLTF.preload('/tshirt.glb');
+useGLTF.preload('./tshirt.glb');
 
 // --------------------------------------------------------------------------------------------------
 // Master Designer Page

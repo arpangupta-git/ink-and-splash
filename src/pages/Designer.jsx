@@ -175,7 +175,7 @@ function ExternalModel({ color, decals, activeDecalId, activeDecal, setDecals, d
         onPointerDown={handlePointerDown}
         onPointerMove={handlePointerMove}
         onPointerUp={handlePointerUp}
-        onPointerOut={handlePointerUp}
+        onPointerCancel={handlePointerUp}
       >
         {decals.map(decal => (
           <DecalLayer 

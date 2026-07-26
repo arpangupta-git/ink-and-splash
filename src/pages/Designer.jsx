@@ -22,7 +22,7 @@ function DecalLayer({ decal, isActive, isHidden }) {
     });
   }, [decal.url]);
 
-  if (!texture || isHidden) return null;
+  if (!texture) return null;
 
   // Determine projection rotation automatically based on Z coordinate (positive Z = front, negative Z = back)
   const sideRotation = decal.z > 0 ? 0 : Math.PI;
@@ -36,6 +36,7 @@ function DecalLayer({ decal, isActive, isHidden }) {
       map={texture}
       emissive={isActive ? "#ffffff" : "#000000"}
       emissiveIntensity={isActive ? 0.1 : 0}
+      visible={!isHidden}
     />
   );
 }
@@ -87,30 +88,30 @@ function ExternalModel({ color, decals, activeDecalId, activeDecal, setDecals, d
 
   // Core Drag Logic (Proxy Ghost Plane to maintain 60fps)
   const handlePointerDown = (e) => {
-    if (designerState.mode === 'edit' && activeDecalId && e.face) {
+    if (designerState.mode === 'edit' && activeDecalId && meshRef.current) {
       e.stopPropagation();
       setDragging(true);
       document.body.style.cursor = 'grabbing';
       
-      if (meshRef.current && dragPlaneRef.current) {
+      if (dragPlaneRef.current) {
         const localPoint = meshRef.current.worldToLocal(e.point.clone());
         dragPlaneRef.current.position.copy(localPoint);
-        const normal = e.face.normal.clone();
-        dragPlaneRef.current.position.addScaledVector(normal, 0.05); // Float slightly above
-        dragPlaneRef.current.lookAt(dragPlaneRef.current.position.clone().add(normal));
+        const sideRotation = localPoint.z > 0 ? 0 : Math.PI;
+        dragPlaneRef.current.rotation.set(0, sideRotation, 0);
+        dragPlaneRef.current.position.z += localPoint.z > 0 ? 0.05 : -0.05;
       }
     }
   };
 
   const handlePointerMove = (e) => {
-    if (dragging && designerState.mode === 'edit' && activeDecalId && meshRef.current && e.face) {
+    if (dragging && designerState.mode === 'edit' && activeDecalId && meshRef.current) {
       e.stopPropagation();
       if (dragPlaneRef.current) {
         const localPoint = meshRef.current.worldToLocal(e.point.clone());
         dragPlaneRef.current.position.copy(localPoint);
-        const normal = e.face.normal.clone();
-        dragPlaneRef.current.position.addScaledVector(normal, 0.05); // Float slightly above
-        dragPlaneRef.current.lookAt(dragPlaneRef.current.position.clone().add(normal));
+        const sideRotation = localPoint.z > 0 ? 0 : Math.PI;
+        dragPlaneRef.current.rotation.set(0, sideRotation, 0);
+        dragPlaneRef.current.position.z += localPoint.z > 0 ? 0.05 : -0.05;
       }
     }
   };
@@ -161,9 +162,10 @@ function ExternalModel({ color, decals, activeDecalId, activeDecal, setDecals, d
           ref={dragPlaneRef} 
           visible={dragging && activeTexture !== null} 
           scale={activeDecal ? [activeDecal.scale * activeDecal.aspectRatio, activeDecal.scale, 1] : [0.15, 0.15, 1]}
+          onUpdate={(m) => { m.raycast = () => null; }}
         >
            <planeGeometry args={[1, 1]} />
-           <meshBasicMaterial map={activeTexture} transparent depthTest={false} opacity={0.6} />
+           <meshBasicMaterial map={activeTexture} transparent depthTest={false} opacity={0.6} side={THREE.DoubleSide} />
         </mesh>
       </mesh>
     </group>

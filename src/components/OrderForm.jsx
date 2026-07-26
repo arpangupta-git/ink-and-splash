@@ -309,7 +309,7 @@ export default function OrderForm() {
               {step < 3 ? (
                 <button className="btn-primary hover-target" onClick={nextStep}>Next <HiArrowRight /></button>
               ) : (
-                <div style={{ display: 'flex', gap: '1rem' }}>
+                <div className="wizard__submit-group">
                   <button className="order__submit order__submit--whatsapp hover-target" onClick={sendWhatsApp}><FaWhatsapp /> WhatsApp</button>
                   <button className="order__submit order__submit--email hover-target" onClick={sendEmail}><HiEnvelope /> Email</button>
                 </div>

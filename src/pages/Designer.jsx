@@ -1,7 +1,8 @@
 import { useState, useMemo, useEffect, Suspense, useRef } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { Float, ContactShadows, OrbitControls, useGLTF, Decal } from '@react-three/drei';
-import { HiArrowLeft, HiPlus, HiTrash, HiMagnifyingGlassPlus, HiMagnifyingGlassMinus, HiArrowsRightLeft, HiEye, HiPencilSquare } from 'react-icons/hi2';
+import { HiOutlineArrowLeft, HiOutlinePlus, HiOutlineTrash, HiOutlineMagnifyingGlassPlus, HiOutlineMagnifyingGlassMinus, HiOutlineArrowsRightLeft, HiOutlineEye, HiOutlinePencilSquare } from 'react-icons/hi2';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import * as THREE from 'three';
 import DesignerTour from '../components/DesignerTour';
@@ -265,9 +266,14 @@ export default function Designer() {
       <DesignerTour />
       
       {/* Top Navigation Bar */}
-      <div className="designer-topbar">
-        <button onClick={() => navigate('/')} className="btn-secondary hover-target tour-back" style={{ padding: '8px 16px', display: 'flex', alignItems: 'center', gap: '8px', borderRadius: '50px' }}>
-          <HiArrowLeft /> <span>Back to Home</span>
+      <motion.div 
+        className="designer-topbar"
+        initial={{ y: -50, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+      >
+        <button onClick={() => navigate('/')} className="btn-secondary hover-target tour-back" style={{ padding: '8px 16px', display: 'flex', alignItems: 'center', gap: '8px', borderRadius: '50px', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)' }}>
+          <HiOutlineArrowLeft /> <span style={{ fontSize: '0.85rem' }}>Back</span>
         </button>
         
         {/* Mode Switcher */}
@@ -276,24 +282,31 @@ export default function Designer() {
              className="hover-target"
              onClick={() => setDesignerState(prev => ({ ...prev, mode: 'edit' }))}
              style={{ cursor: 'pointer', border: 'none', padding: '8px 24px', fontSize: '0.9rem', borderRadius: '50px', background: designerState.mode === 'edit' ? 'white' : 'transparent', color: designerState.mode === 'edit' ? 'black' : 'white', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '8px', transition: 'all 0.3s' }}
-           ><HiPencilSquare /> Edit</button>
+           ><HiOutlinePencilSquare /> Edit</button>
            <button 
              className="hover-target"
              onClick={() => setDesignerState(prev => ({ ...prev, mode: 'preview' }))}
              style={{ cursor: 'pointer', border: 'none', padding: '8px 24px', fontSize: '0.9rem', borderRadius: '50px', background: designerState.mode === 'preview' ? '#7c3aed' : 'transparent', color: 'white', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '8px', transition: 'all 0.3s' }}
-           ><HiEye /> Preview</button>
+           ><HiOutlineEye /> Preview</button>
         </div>
 
-        <button className="btn-primary hover-target tour-download" onClick={handleDownloadSnapshot} style={{ padding: '10px 24px', fontSize: '0.9rem', margin: 0, borderRadius: '50px' }}>
+        <button className="btn-primary hover-target tour-download" onClick={handleDownloadSnapshot} style={{ padding: '8px 20px', fontSize: '0.85rem', margin: 0, borderRadius: '50px' }}>
           Save Design
         </button>
-      </div>
+      </motion.div>
 
       {/* Layers Sidebar (Left) */}
-      {designerState.mode === 'edit' && (
-        <div className="designer-sidebar tour-layers">
-          <h3>Design Layers</h3>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+      <AnimatePresence>
+        {designerState.mode === 'edit' && (
+          <motion.div 
+            className="designer-sidebar tour-layers"
+            initial={{ x: -100, opacity: 0 }}
+            animate={{ x: 0, opacity: 1 }}
+            exit={{ x: -100, opacity: 0 }}
+            transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+          >
+            <h3 style={{ fontWeight: 500, letterSpacing: '0.5px' }}>Design Layers</h3>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
             {decals.map((decal, index) => (
               <div 
                 key={decal.id} 
@@ -309,51 +322,60 @@ export default function Designer() {
                   onClick={(e) => { e.stopPropagation(); setDecals(prev => prev.filter(d => d.id !== decal.id)); if (activeDecalId === decal.id) setActiveDecalId(null); }}
                   style={{ color: '#ef4444', background: 'none', border: 'none', cursor: 'pointer', padding: '4px' }}
                 >
-                  <HiTrash size={16} />
+                  <HiOutlineTrash size={16} />
                 </button>
               </div>
             ))}
           </div>
           <label className="btn-secondary hover-target" style={{ padding: '10px', fontSize: '0.85rem', cursor: 'pointer', margin: 0, borderRadius: '8px', textAlign: 'center', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
-            <HiPlus /> Add Logo
+            <HiOutlinePlus /> Add Logo
             <input type="file" accept="image/png, image/jpeg" style={{ display: 'none' }} onChange={handleFileUpload} />
           </label>
-        </div>
+        </motion.div>
       )}
+      </AnimatePresence>
 
       {/* Camera Controls (Right) */}
-      {designerState.mode === 'edit' && (
-        <div className="designer-controls tour-camera">
-           
-           {/* Zoom Controls without the buggy pill container */}
+      <AnimatePresence>
+        {designerState.mode === 'edit' && (
+          <motion.div 
+            className="designer-controls tour-camera"
+            initial={{ x: 100, opacity: 0 }}
+            animate={{ x: 0, opacity: 1 }}
+            exit={{ x: 100, opacity: 0 }}
+            transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+          >
+             
+             {/* Zoom Controls without the buggy pill container */}
            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
               <button 
                 className="hover-target" 
                 onClick={() => setDesignerState(prev => ({ ...prev, zoom: Math.min(2.5, prev.zoom + 0.2) }))} 
-                style={{ width: '48px', height: '48px', borderRadius: '50%', background: 'rgba(15,15,15,0.7)', backdropFilter: 'blur(10px)', border: '1px solid rgba(255,255,255,0.1)', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', boxShadow: '0 10px 20px rgba(0,0,0,0.3)' }}
+                style={{ width: '48px', height: '48px', borderRadius: '50%', background: 'rgba(20, 20, 25, 0.4)', backdropFilter: 'blur(30px) saturate(150%)', border: '1px solid rgba(255,255,255,0.08)', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', boxShadow: '0 10px 20px rgba(0,0,0,0.3)' }}
               >
-                <HiMagnifyingGlassPlus size={22} />
+                <HiOutlineMagnifyingGlassPlus size={22} />
               </button>
               
               <button 
                 className="hover-target" 
                 onClick={() => setDesignerState(prev => ({ ...prev, zoom: Math.max(0.8, prev.zoom - 0.2) }))} 
-                style={{ width: '48px', height: '48px', borderRadius: '50%', background: 'rgba(15,15,15,0.7)', backdropFilter: 'blur(10px)', border: '1px solid rgba(255,255,255,0.1)', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', boxShadow: '0 10px 20px rgba(0,0,0,0.3)' }}
+                style={{ width: '48px', height: '48px', borderRadius: '50%', background: 'rgba(20, 20, 25, 0.4)', backdropFilter: 'blur(30px) saturate(150%)', border: '1px solid rgba(255,255,255,0.08)', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', boxShadow: '0 10px 20px rgba(0,0,0,0.3)' }}
               >
-                <HiMagnifyingGlassMinus size={22} />
+                <HiOutlineMagnifyingGlassMinus size={22} />
               </button>
            </div>
            
            <button 
              className="hover-target" 
              onClick={() => setDesignerState(prev => ({ ...prev, view: prev.view === 'front' ? 'back' : 'front' }))} 
-             style={{ background: 'rgba(15,15,15,0.7)', backdropFilter: 'blur(10px)', border: '1px solid rgba(255,255,255,0.1)', padding: '12px', borderRadius: '50px', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', cursor: 'pointer', boxShadow: '0 10px 20px rgba(0,0,0,0.3)' }}
+             style={{ background: 'rgba(20, 20, 25, 0.4)', backdropFilter: 'blur(30px) saturate(150%)', border: '1px solid rgba(255,255,255,0.08)', padding: '12px', borderRadius: '50px', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', cursor: 'pointer', boxShadow: '0 10px 20px rgba(0,0,0,0.3)' }}
            >
-             <HiArrowsRightLeft size={18} />
+             <HiOutlineArrowsRightLeft size={18} />
              <span style={{ fontSize: '0.8rem', fontWeight: 600 }}>{designerState.view === 'front' ? 'Flip to Back' : 'Flip to Front'}</span>
            </button>
-        </div>
-      )}
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* 3D Canvas */}
       <Canvas
@@ -363,11 +385,14 @@ export default function Designer() {
         gl={{ antialias: true, alpha: true, preserveDrawingBuffer: true }}
         shadows
       >
-        <ambientLight intensity={0.7} />
-        <directionalLight position={[5, 5, 5]} intensity={2.5} color="#ffffff" castShadow shadow-mapSize={[1024, 1024]} />
-        <directionalLight position={[-4, 3, 3]} intensity={1.5} color="#3b82f6" />
-        <directionalLight position={[0, 2, -5]} intensity={2} color="#ffffff" />
-        <spotLight position={[-4, 4, 6]} intensity={30} color="#7c3aed" angle={0.4} penumbra={0.8} />
+        <ambientLight intensity={0.5} />
+        {/* Cinematic Studio Lighting */}
+        <directionalLight position={[5, 5, 5]} intensity={2.0} color="#ffffff" castShadow shadow-mapSize={[1024, 1024]} />
+        <directionalLight position={[-4, 3, 3]} intensity={1.0} color="#a78bfa" />
+        <directionalLight position={[0, 2, -5]} intensity={1.5} color="#ffffff" />
+        <spotLight position={[-4, 4, 6]} intensity={25} color="#7c3aed" angle={0.5} penumbra={1} />
+        {/* Dramatic Rim Light */}
+        <pointLight position={[0, -2, -3]} intensity={15} color="#7c3aed" />
         
         <Suspense fallback={null}>
           {designerState.mode === 'preview' ? (
@@ -389,7 +414,12 @@ export default function Designer() {
       </Canvas>
 
       {/* Horizontal Dock UI */}
-      <div className="customizer-ui designer-dock">
+      <motion.div 
+        className="customizer-ui designer-dock"
+        initial={{ y: 100, opacity: 0, x: '-50%' }}
+        animate={{ y: 0, opacity: 1, x: '-50%' }}
+        transition={{ type: 'spring', stiffness: 300, damping: 30, delay: 0.1 }}
+      >
         
         {/* Colors */}
         <div className="tour-colors" style={{ display: 'flex', alignItems: 'center', gap: '15px', flexWrap: 'wrap', justifyContent: 'center' }}>
@@ -439,7 +469,7 @@ export default function Designer() {
 
           </div>
         )}
-      </div>
+      </motion.div>
     </div>
   );
 }

@@ -57,27 +57,29 @@ export default function TShirtScene() {
   const navigate = useNavigate();
 
   return (
-    <div style={{ position: 'relative', width: '100%', height: '100%' }}>
-      <Canvas
-        className="tshirt-canvas hover-target"
-        camera={{ position: [0, 0, 1.4], fov: 45 }}
-        dpr={[1, 2]}
-        gl={{ antialias: true, alpha: true }}
-        shadows
-      >
-        <ambientLight intensity={0.7} />
-        <directionalLight position={[5, 5, 5]} intensity={2.5} color="#ffffff" castShadow shadow-mapSize={[1024, 1024]} />
-        <directionalLight position={[-4, 3, 3]} intensity={1.5} color="#3b82f6" />
-        <directionalLight position={[0, 2, -5]} intensity={2} color="#ffffff" />
-        <spotLight position={[-4, 4, 6]} intensity={30} color="#dc2626" angle={0.4} penumbra={0.8} />
-        
-        <Suspense fallback={null}>
-          <HeroModel />
-        </Suspense>
+    <div style={{ display: 'flex', flexDirection: 'column', width: '100%', height: '100%' }}>
+      <div style={{ flex: 1, position: 'relative', minHeight: 0 }}>
+        <Canvas
+          className="tshirt-canvas hover-target"
+          camera={{ position: [0, 0, 1.4], fov: 45 }}
+          dpr={[1, 2]}
+          gl={{ antialias: true, alpha: true }}
+          shadows
+        >
+          <ambientLight intensity={0.7} />
+          <directionalLight position={[5, 5, 5]} intensity={2.5} color="#ffffff" castShadow shadow-mapSize={[1024, 1024]} />
+          <directionalLight position={[-4, 3, 3]} intensity={1.5} color="#3b82f6" />
+          <directionalLight position={[0, 2, -5]} intensity={2} color="#ffffff" />
+          <spotLight position={[-4, 4, 6]} intensity={30} color="#dc2626" angle={0.4} penumbra={0.8} />
+          
+          <Suspense fallback={null}>
+            <HeroModel />
+          </Suspense>
 
-        <ContactShadows position={[0, -0.8, 0]} opacity={0.4} scale={3} blur={2.5} far={4} color="#dc2626" />
-        <OrbitControls enableZoom={false} enablePan={false} autoRotate autoRotateSpeed={2} minPolarAngle={Math.PI / 3} maxPolarAngle={Math.PI / 1.5} />
-      </Canvas>
+          <ContactShadows position={[0, -0.8, 0]} opacity={0.4} scale={3} blur={2.5} far={4} color="#dc2626" />
+          <OrbitControls enableZoom={false} enablePan={false} autoRotate autoRotateSpeed={2} minPolarAngle={Math.PI / 3} maxPolarAngle={Math.PI / 1.5} />
+        </Canvas>
+      </div>
       
       <div className="tshirt-scene__btn-wrap">
         <button 

@@ -31,8 +31,8 @@ function DecalLayer({ decal, isActive, isHidden }) {
     <Decal 
       position={[decal.x, decal.y, decal.z]} 
       rotation={[0, sideRotation, 0]} 
-      // Limit depth scale to 0.5 so it doesn't pierce through to the other side of the shirt!
-      scale={[decal.scale * decal.aspectRatio, decal.scale, 0.5]} 
+      // Limit depth scale to 0.1 so it doesn't pierce through to the other side of the shirt!
+      scale={[decal.scale * decal.aspectRatio, decal.scale, 0.1]} 
       map={texture}
       emissive={isActive ? "#ffffff" : "#000000"}
       emissiveIntensity={isActive ? 0.1 : 0}

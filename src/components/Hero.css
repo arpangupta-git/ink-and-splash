@@ -175,6 +175,14 @@
   to { transform: rotate(360deg); }
 }
 
+.tshirt-scene__btn-wrap {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10;
+}
+
 /* Scroll indicator */
 .hero__scroll-indicator {
   position: absolute;
@@ -230,6 +238,10 @@
     height: 350px;
   }
 
+  .tshirt-scene__btn-wrap {
+    bottom: -10px;
+  }
+
   .hero__scroll-indicator {
     display: none;
   }
@@ -246,6 +258,10 @@
   .hero__stat-divider {
     width: 40px;
     height: 1px;
+  }
+
+  .tshirt-scene__btn-wrap {
+    bottom: -30px;
   }
 
   .hero__actions {

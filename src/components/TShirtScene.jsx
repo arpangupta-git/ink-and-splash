@@ -79,7 +79,7 @@ export default function TShirtScene() {
         <OrbitControls enableZoom={false} enablePan={false} autoRotate autoRotateSpeed={2} minPolarAngle={Math.PI / 3} maxPolarAngle={Math.PI / 1.5} />
       </Canvas>
       
-      <div style={{ position: 'absolute', bottom: '20px', left: '46%', transform: 'translateX(-50%)', zIndex: 10 }}>
+      <div className="tshirt-scene__btn-wrap">
         <button 
           onClick={() => navigate('/designer')}
           className="btn-primary hover-target"

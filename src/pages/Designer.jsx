@@ -4,23 +4,25 @@ import { Float, ContactShadows, OrbitControls, useGLTF, Decal } from '@react-thr
 import { HiArrowLeft, HiPlus, HiTrash, HiMagnifyingGlassPlus, HiMagnifyingGlassMinus, HiArrowsRightLeft, HiEye, HiPencilSquare } from 'react-icons/hi2';
 import { useNavigate } from 'react-router-dom';
 import * as THREE from 'three';
+import DesignerTour from '../components/DesignerTour';
 import './Designer.css';
 
 // --------------------------------------------------------------------------------------------------
 // Subcomponent for each Decal Layer
 // --------------------------------------------------------------------------------------------------
-function DecalLayer({ decal, isActive }) {
+function DecalLayer({ decal, isActive, isHidden }) {
   const [texture, setTexture] = useState(null);
   
   useEffect(() => {
     const loader = new THREE.TextureLoader();
     loader.load(decal.url, (tex) => {
       tex.anisotropy = 16;
+      tex.colorSpace = THREE.SRGBColorSpace;
       setTexture(tex);
     });
   }, [decal.url]);
 
-  if (!texture) return null;
+  if (!texture || isHidden) return null;
 
   // Determine projection rotation automatically based on Z coordinate (positive Z = front, negative Z = back)
   const sideRotation = decal.z > 0 ? 0 : Math.PI;
@@ -41,7 +43,7 @@ function DecalLayer({ decal, isActive }) {
 // --------------------------------------------------------------------------------------------------
 // Main T-Shirt Model (Handles Dragging)
 // --------------------------------------------------------------------------------------------------
-function ExternalModel({ color, decals, activeDecalId, setDecals, designerState }) {
+function ExternalModel({ color, decals, activeDecalId, activeDecal, setDecals, designerState }) {
   const { nodes, materials } = useGLTF('./tshirt.glb');
   
   const meshNode = useMemo(() => Object.values(nodes).find(n => n.type === 'Mesh' || n.isMesh), [nodes]);
@@ -68,34 +70,60 @@ function ExternalModel({ color, decals, activeDecalId, setDecals, designerState 
   });
 
   const meshRef = useRef();
+  const dragPlaneRef = useRef();
   const [dragging, setDragging] = useState(false);
+  const [activeTexture, setActiveTexture] = useState(null);
 
-  // Core Drag Logic (Continuously generate true Decal Geometry for perfect curved tracking)
+  // Preload proxy texture
+  useEffect(() => {
+    if (activeDecal) {
+      new THREE.TextureLoader().load(activeDecal.url, (tex) => {
+        tex.anisotropy = 16;
+        tex.colorSpace = THREE.SRGBColorSpace;
+        setActiveTexture(tex);
+      });
+    }
+  }, [activeDecal]);
+
+  // Core Drag Logic (Proxy Ghost Plane to maintain 60fps)
   const handlePointerDown = (e) => {
-    if (designerState.mode === 'edit' && activeDecalId) {
+    if (designerState.mode === 'edit' && activeDecalId && e.face) {
       e.stopPropagation();
       setDragging(true);
       document.body.style.cursor = 'grabbing';
       
-      if (meshRef.current) {
+      if (meshRef.current && dragPlaneRef.current) {
         const localPoint = meshRef.current.worldToLocal(e.point.clone());
-        setDecals(prev => prev.map(d => d.id === activeDecalId ? { ...d, x: localPoint.x, y: localPoint.y, z: localPoint.z } : d));
+        dragPlaneRef.current.position.copy(localPoint);
+        const normal = e.face.normal.clone();
+        dragPlaneRef.current.position.addScaledVector(normal, 0.05); // Float slightly above
+        dragPlaneRef.current.lookAt(dragPlaneRef.current.position.clone().add(normal));
       }
     }
   };
 
   const handlePointerMove = (e) => {
-    if (dragging && designerState.mode === 'edit' && activeDecalId && meshRef.current) {
+    if (dragging && designerState.mode === 'edit' && activeDecalId && meshRef.current && e.face) {
       e.stopPropagation();
-      const localPoint = meshRef.current.worldToLocal(e.point.clone());
-      setDecals(prev => prev.map(d => d.id === activeDecalId ? { ...d, x: localPoint.x, y: localPoint.y, z: localPoint.z } : d));
+      if (dragPlaneRef.current) {
+        const localPoint = meshRef.current.worldToLocal(e.point.clone());
+        dragPlaneRef.current.position.copy(localPoint);
+        const normal = e.face.normal.clone();
+        dragPlaneRef.current.position.addScaledVector(normal, 0.05); // Float slightly above
+        dragPlaneRef.current.lookAt(dragPlaneRef.current.position.clone().add(normal));
+      }
     }
   };
 
-  const handlePointerUp = () => {
+  const handlePointerUp = (e) => {
     if (dragging) {
       setDragging(false);
-      document.body.style.cursor = 'none';
+      document.body.style.cursor = 'auto';
+      // Bake the final position back to the heavy DecalGeometry
+      if (meshRef.current && e.point) {
+        const localPoint = meshRef.current.worldToLocal(e.point.clone());
+        setDecals(prev => prev.map(d => d.id === activeDecalId ? { ...d, x: localPoint.x, y: localPoint.y, z: localPoint.z } : d));
+      }
     }
   };
 
@@ -124,8 +152,19 @@ function ExternalModel({ color, decals, activeDecalId, setDecals, designerState 
             key={decal.id} 
             decal={decal} 
             isActive={decal.id === activeDecalId && designerState.mode === 'edit'} 
+            isHidden={dragging && decal.id === activeDecalId}
           />
         ))}
+
+        {/* The Proxy Drag Plane */}
+        <mesh 
+          ref={dragPlaneRef} 
+          visible={dragging && activeTexture !== null} 
+          scale={activeDecal ? [activeDecal.scale * activeDecal.aspectRatio, activeDecal.scale, 1] : [0.15, 0.15, 1]}
+        >
+           <planeGeometry args={[1, 1]} />
+           <meshBasicMaterial map={activeTexture} transparent depthTest={false} opacity={0.6} />
+        </mesh>
       </mesh>
     </group>
   );
@@ -192,15 +231,16 @@ export default function Designer() {
 
   return (
     <div className="designer-container">
+      <DesignerTour />
       
       {/* Top Navigation Bar */}
       <div className="designer-topbar">
-        <button onClick={() => navigate('/')} className="btn-secondary hover-target" style={{ padding: '8px 16px', display: 'flex', alignItems: 'center', gap: '8px', borderRadius: '50px' }}>
+        <button onClick={() => navigate('/')} className="btn-secondary hover-target tour-back" style={{ padding: '8px 16px', display: 'flex', alignItems: 'center', gap: '8px', borderRadius: '50px' }}>
           <HiArrowLeft /> <span>Back to Home</span>
         </button>
         
         {/* Mode Switcher */}
-        <div style={{ display: 'flex', background: 'rgba(255,255,255,0.05)', borderRadius: '50px', padding: '6px', border: '1px solid rgba(255,255,255,0.1)' }}>
+        <div className="tour-mode-switch" style={{ display: 'flex', background: 'rgba(255,255,255,0.05)', borderRadius: '50px', padding: '6px', border: '1px solid rgba(255,255,255,0.1)' }}>
            <button 
              className="hover-target"
              onClick={() => setDesignerState(prev => ({ ...prev, mode: 'edit' }))}
@@ -213,14 +253,14 @@ export default function Designer() {
            ><HiEye /> Preview</button>
         </div>
 
-        <button className="btn-primary hover-target" onClick={handleDownloadSnapshot} style={{ padding: '10px 24px', fontSize: '0.9rem', margin: 0, borderRadius: '50px' }}>
+        <button className="btn-primary hover-target tour-download" onClick={handleDownloadSnapshot} style={{ padding: '10px 24px', fontSize: '0.9rem', margin: 0, borderRadius: '50px' }}>
           Save Design
         </button>
       </div>
 
       {/* Layers Sidebar (Left) */}
       {designerState.mode === 'edit' && (
-        <div className="designer-sidebar">
+        <div className="designer-sidebar tour-layers">
           <h3>Design Layers</h3>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
             {decals.map((decal, index) => (
@@ -252,7 +292,7 @@ export default function Designer() {
 
       {/* Camera Controls (Right) */}
       {designerState.mode === 'edit' && (
-        <div className="designer-controls">
+        <div className="designer-controls tour-camera">
            
            {/* Zoom Controls without the buggy pill container */}
            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
@@ -301,11 +341,11 @@ export default function Designer() {
         <Suspense fallback={null}>
           {designerState.mode === 'preview' ? (
             <Float speed={1.5} rotationIntensity={0.1} floatIntensity={0.1}>
-              <ExternalModel color={color} decals={decals} activeDecalId={activeDecalId} setDecals={setDecals} designerState={designerState} />
+              <ExternalModel color={color} decals={decals} activeDecalId={activeDecalId} activeDecal={activeDecal} setDecals={setDecals} designerState={designerState} />
             </Float>
           ) : (
             // No float in Edit Mode to ensure flawless drag-and-drop
-            <ExternalModel color={color} decals={decals} activeDecalId={activeDecalId} setDecals={setDecals} designerState={designerState} />
+            <ExternalModel color={color} decals={decals} activeDecalId={activeDecalId} activeDecal={activeDecal} setDecals={setDecals} designerState={designerState} />
           )}
         </Suspense>
 
@@ -321,7 +361,7 @@ export default function Designer() {
       <div className="customizer-ui designer-dock">
         
         {/* Colors */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '15px', flexWrap: 'wrap', justifyContent: 'center' }}>
+        <div className="tour-colors" style={{ display: 'flex', alignItems: 'center', gap: '15px', flexWrap: 'wrap', justifyContent: 'center' }}>
           <span style={{ color: '#94a3b8', fontSize: '0.85rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '1px', textAlign: 'center' }}>Shirt Color</span>
           <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', justifyContent: 'center' }}>
             {colors.map(c => (
@@ -342,7 +382,7 @@ export default function Designer() {
 
         {/* Edit Context Tools */}
         {designerState.mode === 'edit' && activeDecal && (
-          <div style={{ display: 'flex', alignItems: 'center', gap: '25px', borderLeft: '1px solid rgba(255,255,255,0.1)', paddingLeft: '30px' }}>
+          <div className="tour-size" style={{ display: 'flex', alignItems: 'center', gap: '25px', borderLeft: '1px solid rgba(255,255,255,0.1)', paddingLeft: '30px' }}>
             
             {/* Smooth Size Slider */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', minWidth: '150px' }}>

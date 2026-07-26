@@ -51,8 +51,7 @@ export default function CustomCursor() {
       <div
         className={`cursor-dot ${isHovering ? 'hovering' : ''}`}
         style={{
-          left: mousePosition.x - (isHovering ? 25 : 5), 
-          top: mousePosition.y - (isHovering ? 25 : 5),
+          transform: `translate3d(${mousePosition.x - (isHovering ? 25 : 5)}px, ${mousePosition.y - (isHovering ? 25 : 5)}px, 0)`
         }}
       />
     </>

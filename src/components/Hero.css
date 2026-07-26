@@ -229,6 +229,10 @@
   .hero__3d {
     height: 350px;
   }
+
+  .hero__scroll-indicator {
+    display: none;
+  }
 }
 
 @media (max-width: 480px) {

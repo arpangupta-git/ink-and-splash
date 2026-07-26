@@ -261,8 +261,21 @@ export default function Designer() {
   // Helper for active decal
   const activeDecal = decals.find(d => d.id === activeDecalId);
 
+  // Calculate a subtle ambient glow that perfectly contrasts or compliments the shirt
+  const ambientGlow = useMemo(() => {
+    if (color === '#0a0a0a') return '#3f3f46'; // Cool zinc glow for black shirt
+    if (color === '#ffffff') return '#9ca3af'; // Neutral gray glow for white shirt
+    return color; // Use the actual shirt color for the ambient glow
+  }, [color]);
+
   return (
-    <div className="designer-container">
+    <div 
+      className="designer-container"
+      style={{
+        background: `radial-gradient(circle at 50% 50%, ${ambientGlow}33 0%, #050505 100%)`,
+        transition: 'background 0.5s ease'
+      }}
+    >
       <DesignerTour />
       
       {/* Top Navigation Bar */}

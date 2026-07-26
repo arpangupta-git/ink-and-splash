@@ -4,6 +4,7 @@
   height: 100vh;
   background-color: #050505;
   overflow: hidden;
+  touch-action: none;
 }
 
 .designer-topbar {

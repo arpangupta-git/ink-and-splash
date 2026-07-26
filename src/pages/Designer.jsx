@@ -72,6 +72,7 @@ function ExternalModel({ color, decals, activeDecalId, activeDecal, setDecals, d
 
   const meshRef = useRef();
   const dragPlaneRef = useRef();
+  const dragOffsetRef = useRef(new THREE.Vector3());
   const [dragging, setDragging] = useState(false);
   const [activeTexture, setActiveTexture] = useState(null);
 
@@ -111,7 +112,11 @@ function ExternalModel({ color, decals, activeDecalId, activeDecal, setDecals, d
       if (dragPlaneRef.current) {
         const localPoint = getPlaneIntersection(e.ray, activeDecal.z);
         if (localPoint) {
-          dragPlaneRef.current.position.copy(localPoint);
+          // Prevent center-snapping by capturing the offset
+          const currentCenter = new THREE.Vector3(activeDecal.x, activeDecal.y, activeDecal.z);
+          dragOffsetRef.current.copy(currentCenter).sub(localPoint);
+
+          dragPlaneRef.current.position.copy(currentCenter);
           const sideRotation = activeDecal.z > 0 ? 0 : Math.PI;
           dragPlaneRef.current.rotation.set(0, sideRotation, 0);
         }
@@ -125,7 +130,9 @@ function ExternalModel({ color, decals, activeDecalId, activeDecal, setDecals, d
       if (dragPlaneRef.current) {
         const localPoint = getPlaneIntersection(e.ray, activeDecal.z);
         if (localPoint) {
-          dragPlaneRef.current.position.copy(localPoint);
+          // Apply the offset so the logo moves exactly with the cursor 1:1
+          const finalPoint = localPoint.clone().add(dragOffsetRef.current);
+          dragPlaneRef.current.position.copy(finalPoint);
           const sideRotation = activeDecal.z > 0 ? 0 : Math.PI;
           dragPlaneRef.current.rotation.set(0, sideRotation, 0);
         }
@@ -143,7 +150,8 @@ function ExternalModel({ color, decals, activeDecalId, activeDecal, setDecals, d
       if (meshRef.current && e.ray && activeDecal) {
         const localPoint = getPlaneIntersection(e.ray, activeDecal.z);
         if (localPoint) {
-          setDecals(prev => prev.map(d => d.id === activeDecalId ? { ...d, x: localPoint.x, y: localPoint.y } : d));
+          const finalPoint = localPoint.clone().add(dragOffsetRef.current);
+          setDecals(prev => prev.map(d => d.id === activeDecalId ? { ...d, x: finalPoint.x, y: finalPoint.y } : d));
         }
       }
     }

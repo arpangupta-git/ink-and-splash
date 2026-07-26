@@ -1,9 +1,10 @@
 .designer-container {
   position: relative;
   width: 100vw;
-  height: 100dvh;
+  height: 100vh;
   background-color: #050505;
   overflow: hidden;
+  touch-action: none;
 }
 
 .designer-topbar {

@@ -31,8 +31,8 @@ function DecalLayer({ decal, isActive, isHidden }) {
     <Decal 
       position={[decal.x, decal.y, decal.z]} 
       rotation={[0, sideRotation, 0]} 
-      // Depth of 0.25 covers chest wrinkles perfectly without bleeding to the back
-      scale={[decal.scale * decal.aspectRatio, decal.scale, 0.25]} 
+      // Limit depth scale to 0.1 so it doesn't pierce through to the other side of the shirt!
+      scale={[decal.scale * decal.aspectRatio, decal.scale, 0.1]} 
       map={texture}
       emissive={isActive ? "#ffffff" : "#000000"}
       emissiveIntensity={isActive ? 0.1 : 0}
@@ -124,20 +124,6 @@ function ExternalModel({ color, decals, activeDecalId, activeDecal, setDecals, d
     }
   };
 
-  // Restricts logo to the chest/back printable area
-  const clampPointToPrintableArea = (point, scale, aspectRatio) => {
-    const halfWidth = (scale * aspectRatio) / 2;
-    const limitX = Math.max(0.01, 0.18 - halfWidth); // Max distance from center
-    const limitYTop = 0.22; // Collar boundary
-    const limitYBottom = -0.20; // Stomach boundary
-
-    return new THREE.Vector3(
-      Math.max(-limitX, Math.min(limitX, point.x)),
-      Math.max(limitYBottom, Math.min(limitYTop, point.y)),
-      point.z
-    );
-  };
-
   const handlePointerMove = (e) => {
     if (dragging && designerState.mode === 'edit' && activeDecalId && meshRef.current && activeDecal) {
       e.stopPropagation();
@@ -145,9 +131,7 @@ function ExternalModel({ color, decals, activeDecalId, activeDecal, setDecals, d
         const localPoint = getPlaneIntersection(e.ray, activeDecal.z);
         if (localPoint) {
           // Apply the offset so the logo moves exactly with the cursor 1:1
-          let finalPoint = localPoint.clone().add(dragOffsetRef.current);
-          finalPoint = clampPointToPrintableArea(finalPoint, activeDecal.scale, activeDecal.aspectRatio);
-
+          const finalPoint = localPoint.clone().add(dragOffsetRef.current);
           dragPlaneRef.current.position.copy(finalPoint);
           const sideRotation = activeDecal.z > 0 ? 0 : Math.PI;
           dragPlaneRef.current.rotation.set(0, sideRotation, 0);
@@ -162,11 +146,11 @@ function ExternalModel({ color, decals, activeDecalId, activeDecal, setDecals, d
       e.target.releasePointerCapture(e.pointerId);
       setDragging(false);
       document.body.style.cursor = 'auto';
+      // Bake the final position back to the heavy DecalGeometry
       if (meshRef.current && e.ray && activeDecal) {
         const localPoint = getPlaneIntersection(e.ray, activeDecal.z);
         if (localPoint) {
-          let finalPoint = localPoint.clone().add(dragOffsetRef.current);
-          finalPoint = clampPointToPrintableArea(finalPoint, activeDecal.scale, activeDecal.aspectRatio);
+          const finalPoint = localPoint.clone().add(dragOffsetRef.current);
           setDecals(prev => prev.map(d => d.id === activeDecalId ? { ...d, x: finalPoint.x, y: finalPoint.y } : d));
         }
       }

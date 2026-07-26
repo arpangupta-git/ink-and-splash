@@ -86,44 +86,65 @@ function ExternalModel({ color, decals, activeDecalId, activeDecal, setDecals, d
     }
   }, [activeDecal]);
 
+  // Helper to get intersection perfectly flat against the Decal plane
+  const getPlaneIntersection = (ray, zDepth) => {
+    if (!meshRef.current) return null;
+    const isFront = zDepth > 0;
+    const mathematicalPlane = new THREE.Plane(
+      new THREE.Vector3(0, 0, isFront ? 1 : -1), 
+      -(isFront ? 1 : -1) * zDepth
+    );
+    const localRay = ray.clone().applyMatrix4(meshRef.current.matrixWorld.clone().invert());
+    const localPoint = new THREE.Vector3();
+    const result = localRay.intersectPlane(mathematicalPlane, localPoint);
+    return result ? localPoint : null;
+  };
+
   // Core Drag Logic (Proxy Ghost Plane to maintain 60fps)
   const handlePointerDown = (e) => {
-    if (designerState.mode === 'edit' && activeDecalId && meshRef.current) {
+    if (designerState.mode === 'edit' && activeDecalId && meshRef.current && activeDecal) {
       e.stopPropagation();
+      e.target.setPointerCapture(e.pointerId);
       setDragging(true);
       document.body.style.cursor = 'grabbing';
       
       if (dragPlaneRef.current) {
-        const localPoint = meshRef.current.worldToLocal(e.point.clone());
-        dragPlaneRef.current.position.copy(localPoint);
-        const sideRotation = localPoint.z > 0 ? 0 : Math.PI;
-        dragPlaneRef.current.rotation.set(0, sideRotation, 0);
-        dragPlaneRef.current.position.z += localPoint.z > 0 ? 0.05 : -0.05;
+        const localPoint = getPlaneIntersection(e.ray, activeDecal.z);
+        if (localPoint) {
+          dragPlaneRef.current.position.copy(localPoint);
+          const sideRotation = activeDecal.z > 0 ? 0 : Math.PI;
+          dragPlaneRef.current.rotation.set(0, sideRotation, 0);
+        }
       }
     }
   };
 
   const handlePointerMove = (e) => {
-    if (dragging && designerState.mode === 'edit' && activeDecalId && meshRef.current) {
+    if (dragging && designerState.mode === 'edit' && activeDecalId && meshRef.current && activeDecal) {
       e.stopPropagation();
       if (dragPlaneRef.current) {
-        const localPoint = meshRef.current.worldToLocal(e.point.clone());
-        dragPlaneRef.current.position.copy(localPoint);
-        const sideRotation = localPoint.z > 0 ? 0 : Math.PI;
-        dragPlaneRef.current.rotation.set(0, sideRotation, 0);
-        dragPlaneRef.current.position.z += localPoint.z > 0 ? 0.05 : -0.05;
+        const localPoint = getPlaneIntersection(e.ray, activeDecal.z);
+        if (localPoint) {
+          dragPlaneRef.current.position.copy(localPoint);
+          const sideRotation = activeDecal.z > 0 ? 0 : Math.PI;
+          dragPlaneRef.current.rotation.set(0, sideRotation, 0);
+        }
       }
     }
   };
 
   const handlePointerUp = (e) => {
     if (dragging) {
+      e.stopPropagation();
+      e.target.releasePointerCapture(e.pointerId);
       setDragging(false);
       document.body.style.cursor = 'auto';
       // Bake the final position back to the heavy DecalGeometry
-      if (meshRef.current && e.point) {
-        const localPoint = meshRef.current.worldToLocal(e.point.clone());
-        setDecals(prev => prev.map(d => d.id === activeDecalId ? { ...d, x: localPoint.x, y: localPoint.y, z: localPoint.z } : d));
+      if (meshRef.current && e.ray && activeDecal) {
+        const localPoint = getPlaneIntersection(e.ray, activeDecal.z);
+        if (localPoint) {
+          setDecals(prev => prev.map(d => d.id === activeDecalId ? { ...d, x: localPoint.x, y: localPoint.y } : d));
+        }
       }
     }
   };
